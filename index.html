@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Learningmodule App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo-placeholder">LOGO</div>
+    <div class="header-right">
+      <select id="language-select" class="lang-select">
+        <option value="de">DE</option>
+        <option value="en">EN</option>
+      </select>
+      <div id="user-info" class="user-info hidden">
+        <span id="user-name-display"></span>
+        <button id="logout-btn" class="btn btn-ghost" data-i18n="logout">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- AUTH VIEW -->
+    <section id="view-auth" class="view active">
+      <div class="card card-center auth-card">
+        <h1 data-i18n="auth_title">Login / Registrierung</h1>
+        <p class="muted" data-i18n="auth_subtitle">
+          Bitte melden Sie sich mit Ihrem Konto an oder registrieren Sie sich.
+        </p>
+
+        <label class="field-label" for="auth-email" data-i18n="auth_email_label">E-Mail</label>
+        <input id="auth-email" type="email" class="input" />
+
+        <label class="field-label" for="auth-name" data-i18n="auth_name_label">
+          Name (für Registrierung)
+        </label>
+        <input id="auth-name" type="text" class="input" />
+
+        <label class="field-label" for="auth-password" data-i18n="auth_password_label">
+          Passwort (Demo; wird nur lokal simuliert)
+        </label>
+        <input id="auth-password" type="password" class="input" />
+
+        <div class="auth-actions">
+          <button id="login-btn" class="btn btn-primary" data-i18n="auth_login_btn">
+            Einloggen
+          </button>
+          <button id="register-btn" class="btn btn-secondary" data-i18n="auth_register_btn">
+            Registrieren
+          </button>
+        </div>
+
+        <p class="muted tiny" data-i18n="auth_notice">
+          Hinweis: In dieser Demo werden Login und Registrierung nur lokal simuliert. 
+          In der finalen Version wird Firebase Authentication verwendet.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONSENT VIEW -->
+    <section id="view-consent" class="view">
+      <div class="card card-center consent-card">
+        <h1 data-i18n="consent_title">Datenschutz & Einwilligung</h1>
+        <p class="muted" data-i18n="consent_intro">
+          Bitte lesen Sie die folgenden Hinweise und bestätigen Sie diese, um fortzufahren.
+        </p>
+
+        <label class="checkbox">
+          <input type="checkbox" id="consent-dsgvo" />
+          <span data-i18n="consent_dsgvo">
+            Ich habe die Datenschutzbestimmungen gelesen und verstanden.
+          </span>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="consent-provider" />
+          <span data-i18n="consent_provider">
+            Ich stimme der Verarbeitung meiner Daten durch den externen Verifizierungsanbieter zu.
+          </span>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="consent-terms" />
+          <span data-i18n="consent_terms">
+            Ich bestätige, dass ich die Nutzungsbedingungen gelesen habe.
+          </span>
+        </label>
+
+        <button id="consent-continue-btn" class="btn btn-primary" data-i18n="consent_continue">
+          Einwilligungen speichern
+        </button>
+      </div>
+    </section>
+
+    <!-- VERIFICATION VIEW -->
+    <section id="view-verification" class="view">
+      <div class="card card-center">
+        <h1 data-i18n="verify_title">Identitätsprüfung</h1>
+        <p class="muted" data-i18n="verify_intro">
+          Für dieses Training ist eine Identitätsprüfung mit Gesichts- und Dokumentenverifikation erforderlich.
+          In dieser Demo wird der Prozess nur simuliert.
+        </p>
+        <ol class="muted">
+          <li data-i18n="verify_step1">Start der Verifikation bei einem externen Anbieter (z. B. pxl-vision).</li>
+          <li data-i18n="verify_step2">Upload von Ausweisdokument und Selfie.</li>
+          <li data-i18n="verify_step3">Rückmeldung des Status an diese Anwendung.</li>
+        </ol>
+
+        <button id="start-verification-btn" class="btn btn-primary" data-i18n="verify_start_btn">
+          Verifikation jetzt simulieren
+        </button>
+
+        <p id="verification-status" class="status info tiny"></p>
+      </div>
+    </section>
+
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view">
+      <div class="dashboard-layout">
+        <aside class="sidebar">
+          <h2 data-i18n="dashboard_tests_title">Tests</h2>
+          <label class="field-label" for="category-filter" data-i18n="dashboard_category_label">
+            Kategorie filtern
+          </label>
+          <select id="category-filter" class="input">
+            <option value="all" data-i18n="category_all">Alle Kategorien</option>
+          </select>
+
+          <ul id="test-list" class="test-list"></ul>
+
+          <div class="admin-link hidden" id="admin-link-wrapper">
+            <button id="open-admin-btn" class="btn btn-ghost" data-i18n="dashboard_admin_btn">
+              Admin-Bereich
+            </button>
+          </div>
+        </aside>
+
+        <section class="content">
+          <div class="card" id="learning-card">
+            <h2 id="learning-title">Willkommen</h2>
+            <p id="learning-description" class="muted">
+              Wählen Sie links einen Test aus, um die Lerninhalte zu sehen.
+            </p>
+            <div id="learning-content"></div>
+
+            <button id="start-test-btn" class="btn btn-primary" disabled data-i18n="start_test_btn">
+              Test starten
+            </button>
+
+            <div id="learning-progress-wrapper" class="progress-wrapper hidden">
+              <div class="progress-label">
+                <span data-i18n="overall_progress">Gesamtfortschritt</span>
+                <span id="overall-progress-text">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="overall-progress-fill" class="progress-fill" style="width:0%;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- TEST VIEW -->
+    <section id="view-test" class="view">
+      <div class="card card-center test-card">
+        <div class="test-header">
+          <button id="back-to-dashboard-btn" class="btn btn-ghost" data-i18n="back_to_dashboard">
+            Zurück
+          </button>
+          <h2 id="test-title"></h2>
+        </div>
+
+        <div class="progress-wrapper">
+          <div class="progress-label">
+            <span id="question-progress-text">0/0</span>
+            <span id="question-progress-percent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div id="question-progress-fill" class="progress-fill" style="width:0%;"></div>
+          </div>
+        </div>
+
+        <div id="question-container"></div>
+
+        <div class="test-actions">
+          <button id="prev-question-btn" class="btn btn-secondary" data-i18n="prev_question">
+            Zurück
+          </button>
+          <button id="next-question-btn" class="btn btn-primary" data-i18n="next_question">
+            Weiter
+          </button>
+        </div>
+
+        <div id="test-result" class="test-result hidden"></div>
+
+        <div id="feedback-section" class="feedback hidden">
+          <h3 data-i18n="feedback_title">Feedback</h3>
+          <p class="muted" data-i18n="feedback_intro">
+            Wie verständlich war dieser Test?
+          </p>
+          <div class="feedback-buttons">
+            <button class="feedback-btn" data-score="1">1</button>
+            <button class="feedback-btn" data-score="2">2</button>
+            <button class="feedback-btn" data-score="3">3</button>
+            <button class="feedback-btn" data-score="4">4</button>
+            <button class="feedback-btn" data-score="5">5</button>
+          </div>
+          <textarea id="feedback-comment" class="input" rows="3"
+            placeholder="Optionaler Kommentar..."></textarea>
+          <button id="submit-feedback-btn" class="btn btn-secondary" data-i18n="feedback_submit">
+            Feedback senden
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section id="view-admin" class="view">
+      <div class="card admin-card">
+        <div class="admin-header">
+          <h1 data-i18n="admin_title">Admin-Dashboard</h1>
+          <button id="close-admin-btn" class="btn btn-ghost" data-i18n="admin_close">
+            Schließen
+          </button>
+        </div>
+
+        <p class="muted" data-i18n="admin_intro">
+          Diese Ansicht zeigt eine einfache Übersicht über Testergebnisse (in dieser Demo aus Local Storage).
+        </p>
+
+        <div class="admin-controls">
+          <button id="export-results-btn" class="btn btn-secondary" data-i18n="admin_export_btn">
+            Ergebnisse als CSV exportieren
+          </button>
+        </div>
+
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th data-i18n="admin_col_user">User</th>
+              <th data-i18n="admin_col_test">Test</th>
+              <th data-i18n="admin_col_category">Kategorie</th>
+              <th data-i18n="admin_col_score">Score</th>
+              <th data-i18n="admin_col_passed">Bestanden</th>
+              <th data-i18n="admin_col_date">Datum</th>
+              <th data-i18n="admin_col_duration">Dauer (s)</th>
+            </tr>
+          </thead>
+          <tbody id="admin-results-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
