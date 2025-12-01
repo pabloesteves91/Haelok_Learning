@@ -340,7 +340,6 @@ function handleLogin(isRegister) {
     return;
   }
 
-  // In echter App: Firebase Auth.
   let user = loadUserFromStorage();
   if (!user || isRegister) {
     user = {
@@ -353,7 +352,6 @@ function handleLogin(isRegister) {
       language: currentLanguage
     };
   } else {
-    // Login: nur Sprache updaten
     user.language = currentLanguage;
   }
 
@@ -362,7 +360,11 @@ function handleLogin(isRegister) {
   updateHeaderUserInfo();
   updateAdminLinkVisibility();
 
-  // Nächster Schritt: Consent, falls noch nicht gegeben
+  // 🔥 NEU: In Firestore speichern
+  saveUserToFirestore(user).catch((err) => {
+    console.error("Fehler beim Speichern des Users in Firestore:", err);
+  });
+
   if (!currentUser.consentGiven) {
     showView("view-consent");
   } else if (currentUser.verificationStatus !== "verified") {
