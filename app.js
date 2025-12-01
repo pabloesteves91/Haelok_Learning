@@ -1,5 +1,11 @@
 // app.js
-// Zentrale Logik für Demo: Dummy-Auth, i18n, Test-Engine, Feedback, Admin-View.
+// Zentrale Logik: Dummy-Auth, i18n, Test-Engine, Feedback, Admin-View + Firebase-Integration.
+
+import {
+  initFirebase,
+  saveResultToFirestore,
+  saveFeedbackToFirestore
+} from "./firebase.js";
 
 // ------------------------
 // Demo-Daten
@@ -388,16 +394,18 @@ function handleConsentSave() {
 
 function handleVerificationSimulate() {
   const statusEl = document.getElementById("verification-status");
-  statusEl.textContent = currentLanguage === "de"
-    ? "Verifikation wird simuliert ..."
-    : "Simulating verification ...";
+  statusEl.textContent =
+    currentLanguage === "de"
+      ? "Verifikation wird simuliert ..."
+      : "Simulating verification ...";
 
   setTimeout(() => {
     currentUser.verificationStatus = "verified";
     saveUserToStorage(currentUser);
-    statusEl.textContent = currentLanguage === "de"
-      ? "Verifikation erfolgreich. Sie können jetzt mit den Tests beginnen."
-      : "Verification successful. You can now start the tests.";
+    statusEl.textContent =
+      currentLanguage === "de"
+        ? "Verifikation erfolgreich. Sie können jetzt mit den Tests beginnen."
+        : "Verification successful. You can now start the tests.";
     setTimeout(showDashboard, 1000);
   }, 1200);
 }
@@ -700,9 +708,7 @@ function finishTest() {
     resultBox.appendChild(link);
   }
 
-  // Save result
-  const results = loadResultsFromStorage();
-  results.push({
+  const resultObj = {
     userId: currentUser.uid,
     userName: currentUser.name,
     testId: selectedTest.id,
@@ -715,8 +721,17 @@ function finishTest() {
     startedAt: new Date(currentAttemptStartTime).toISOString(),
     finishedAt: new Date().toISOString(),
     durationSeconds
-  });
+  };
+
+  // Local Storage
+  const results = loadResultsFromStorage();
+  results.push(resultObj);
   saveResultsToStorage(results);
+
+  // Firestore
+  saveResultToFirestore(resultObj).catch((err) => {
+    console.error("Fehler beim Speichern in Firestore:", err);
+  });
 
   renderOverallProgress();
 
@@ -782,10 +797,13 @@ function handleFeedbackSubmit() {
   };
 
   console.log("Feedback (Demo):", feedback);
-  alert(currentLanguage === "en" ? "Thank you for your feedback!" : "Vielen Dank für Ihr Feedback!");
 
-  // In echter App: Firestore
-  // saveFeedbackToFirestore(feedback);
+  // Firestore
+  saveFeedbackToFirestore(feedback).catch((err) => {
+    console.error("Fehler beim Feedback-Speichern in Firestore:", err);
+  });
+
+  alert(currentLanguage === "en" ? "Thank you for your feedback!" : "Vielen Dank für Ihr Feedback!");
 }
 
 // ------------------------
@@ -962,4 +980,11 @@ function init() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    initFirebase();
+  } catch (e) {
+    console.error("Firebase-Init Fehler:", e);
+  }
+  init();
+});
