@@ -1,43 +1,51 @@
 // firebase.js
-// Platzhalter für Firebase-Konfiguration und einfache Wrapper-Funktionen.
-// In der Demo wird Firestore nicht aktiv verwendet; die Struktur ist vorbereitet.
+// Echte Firebase-Initialisierung mit Firestore (über CDN-Module)
 
-// 1. Firebase SDK-Skripte in index.html einbinden (CDN oder bundler).
-// 2. Konfiguration unten aus der Firebase Console einfügen.
-// 3. initFirebase() aus app.js aufrufen, sobald die Seite geladen ist.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-let firebaseApp = null;
-let firestoreDb = null;
+let db = null;
 
 export function initFirebase() {
-  // Beispiel-Konfig (Platzhalter):
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+  apiKey: "AIzaSyCSKmZe4RK5wUW2aQ6nU899aP7WUnXKs2E",
+  authDomain: "haelok-a96bb.firebaseapp.com",
+  projectId: "haelok-a96bb",
+  storageBucket: "haelok-a96bb.firebasestorage.app",
+  messagingSenderId: "756111132502",
+  appId: "1:756111132502:web:a51cd94842cadad46ff8f7",
+  measurementId: "G-MK4YKSBDC2"
+};
 
-  // In echter App:
-  // firebaseApp = firebase.initializeApp(firebaseConfig);
-  // firestoreDb = firebase.firestore();
-
-  console.warn("Firebase ist aktuell nur als Platzhalter konfiguriert.");
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  console.log("Firebase initialisiert");
 }
 
-export function saveResultToFirestore(result) {
-  // In echter App: Ergebnis in Firestore schreiben.
-  console.log("Firestore-Result-Stub:", result);
+// Ergebnis in Firestore speichern
+export async function saveResultToFirestore(result) {
+  if (!db) {
+    console.warn("Firestore noch nicht initialisiert");
+    return;
+  }
+  await addDoc(collection(db, "results"), result);
 }
 
-export function saveFeedbackToFirestore(feedback) {
-  console.log("Firestore-Feedback-Stub:", feedback);
+// Feedback in Firestore speichern
+export async function saveFeedbackToFirestore(feedback) {
+  if (!db) {
+    console.warn("Firestore noch nicht initialisiert");
+    return;
+  }
+  await addDoc(collection(db, "feedback"), feedback);
 }
 
-export function loadTestsFromFirestore() {
-  // In echter App: Tests dynamisch laden.
-  console.log("Firestore-Tests-Load-Stub");
-  return Promise.resolve(null);
+// Optional: später Tests aus Firestore laden (jetzt noch nicht genutzt)
+export async function loadTestsFromFirestore() {
+  // hier könntest du später Tests laden
+  return null;
 }
